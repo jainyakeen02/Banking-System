@@ -31,9 +31,6 @@ app.use(cors({
   credentials: true,
 }));
 
-// Respond 204 to all preflight OPTIONS requests immediately
-app.options("*", cors());
-
 // ─── Body Parsers ──────────────────────────────────────────────────────────────
 app.use(express.json());
 app.use(cookieParser());
