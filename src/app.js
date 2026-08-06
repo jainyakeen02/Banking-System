@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const path = require("path");
 
@@ -10,9 +11,34 @@ const adminRouter = require("./routes/admin.routes");
 
 const app = express();
 
+// ─── CORS ─────────────────────────────────────────────────────────────────────
+// Must be registered BEFORE any routes so preflight OPTIONS requests are handled.
+const allowedOrigins = [
+  process.env.FRONTEND_URL,           // e.g. https://banking-system-khaki.vercel.app
+  "http://localhost:5173",            // Vite dev server
+  "http://localhost:3000",            // CRA / fallback
+].filter(Boolean);                    // drop undefined/empty values
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, curl, Postman)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    callback(new Error(`CORS policy: origin '${origin}' is not allowed`));
+  },
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+}));
+
+// Respond 204 to all preflight OPTIONS requests immediately
+app.options("*", cors());
+
+// ─── Body Parsers ──────────────────────────────────────────────────────────────
 app.use(express.json());
 app.use(cookieParser());
 
+// ─── Health Check ─────────────────────────────────────────────────────────────
 app.get("/api/health", (req, res) => {
   const mongoose = require("mongoose");
   const databaseReady = mongoose.connection.readyState === 1;
@@ -22,16 +48,16 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-// Serve Static Frontend Web Application
+// ─── Serve Static Frontend ────────────────────────────────────────────────────
 app.use(express.static(path.join(__dirname, "../client/dist")));
 
-/* Use Routes */
+// ─── API Routes ───────────────────────────────────────────────────────────────
 app.use("/api/auth", authRouter);
 app.use("/api/accounts", accountRouter);
 app.use("/api/transactions", transactionRoutes);
 app.use("/api/admin", adminRouter);
 
-// React handles browser routes after API routes have been resolved.
+// ─── SPA Fallback (React Router) ──────────────────────────────────────────────
 app.get("/{*path}", (req, res, next) => {
   if (req.path.startsWith("/api/")) return next();
   res.sendFile(path.join(__dirname, "../client/dist/index.html"), (error) => {
@@ -39,12 +65,5 @@ app.get("/{*path}", (req, res, next) => {
   });
 });
 
-const cors = require("cors");
-
-app.use(cors({
-  origin: process.env.FRONTEND_URL,
-  methods: ["GET", "POST"],
-  allowedHeaders: ["Content-Type", "Authorization"]
-}));
-
 module.exports = app;
+
