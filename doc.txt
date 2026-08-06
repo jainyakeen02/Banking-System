@@ -1,0 +1,3 @@
+username:- jainyakeen05_db_user
+password:- Bynha7DNxocEWPsv
+URL :- mongodb+srv://jainyakeen05_db_user:Bynha7DNxocEWPsv@cluster0.5zc9wss.mongodb.net/backend-ledger

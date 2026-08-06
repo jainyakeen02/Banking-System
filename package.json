@@ -1,0 +1,39 @@
+{
+  "name": "backend-ledger",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "concurrently -n backend,frontend -c green,cyan \"npm run backend\" \"npm run frontend\"",
+    "backend": "nodemon server.js",
+    "frontend": "vite --host 0.0.0.0",
+    "start": "node server.js",
+    "client:dev": "npm run frontend",
+    "client:build": "vite build",
+    "check": "node --check server.js && node --check src/app.js && node --check src/controllers/auth.controller.js && node --check src/controllers/account.controller.js && node --check src/controllers/transaction.controller.js && node --check src/controllers/admin.controller.js",
+    "api:smoke": "node scripts/api-smoke-test.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.9.1",
+    "nodemailer": "^9.0.4",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.0.5",
+    "concurrently": "^10.0.4",
+    "nodemon": "^3.1.14",
+    "vite": "^8.2.1"
+  }
+}

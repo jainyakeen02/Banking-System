@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LEDGER BANK - Next-Gen Banking System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Top Navigation Header -->
+    <header class="navbar">
+      <div class="logo">
+        <i class="fa-solid fa-vault logo-icon"></i>
+        <div class="logo-text">
+          <span class="brand-title">LEDGER<span class="highlight">BANK</span></span>
+          <span class="brand-sub">ENTERPRISE TRANSACTION ENGINE</span>
+        </div>
+      </div>
+
+      <div class="nav-portal-selector">
+        <button id="tabUserPortal" class="portal-btn active"><i class="fa-solid fa-mobile-screen"></i> Mobile Banking</button>
+        <button id="tabAdminPortal" class="portal-btn"><i class="fa-solid fa-building-columns"></i> Admin Cashier Desk</button>
+      </div>
+
+      <div class="user-status-bar" id="userStatusBar">
+        <span class="status-badge guest" id="statusBadge"><i class="fa-solid fa-circle-user"></i> Not Logged In</span>
+        <button id="btnLogout" class="btn-logout hidden"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+      </div>
+    </header>
+
+    <!-- Notification Alert Banner -->
+    <div id="toast" class="toast hidden">
+      <i class="fa-solid fa-circle-info toast-icon"></i>
+      <span id="toastMessage">Welcome to Ledger Bank</span>
+    </div>
+
+    <!-- MAIN CONTENT CONTAINERS -->
+
+    <!-- ==================== 1. USER MOBILE BANKING PORTAL ==================== -->
+    <main id="userPortalSection" class="portal-section active">
+
+      <!-- Auth Screen (If Not Logged In) -->
+      <section id="userAuthContainer" class="auth-wrapper">
+        <div class="glass-card auth-card">
+          <div class="auth-toggle">
+            <button id="btnToggleLogin" class="auth-tab active">User Login</button>
+            <button id="btnToggleRegister" class="auth-tab">Register User</button>
+          </div>
+
+          <!-- Login Form -->
+          <form id="formUserLogin" class="auth-form">
+            <h2>Welcome Back</h2>
+            <p class="subtitle">Access your Mobile Banking Wallet</p>
+
+            <div class="input-group">
+              <label for="loginEmail"><i class="fa-solid fa-envelope"></i> Email Address</label>
+              <input type="email" id="loginEmail" placeholder="e.g. alice@example.com" required>
+            </div>
+
+            <div class="input-group">
+              <label for="loginPassword"><i class="fa-solid fa-key"></i> Password</label>
+              <input type="password" id="loginPassword" placeholder="••••••••" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary full-width"><i class="fa-solid fa-arrow-right-to-bracket"></i> Login to Mobile Banking</button>
+
+            <div class="quick-credentials">
+              <span>Quick Test Admin Login:</span>
+              <code>admin@ledgerbank.com</code> / <code>Admin@Ledger2026</code>
+            </div>
+          </form>
+
+          <!-- Register Form -->
+          <form id="formUserRegister" class="auth-form hidden">
+            <h2>Create Online Account</h2>
+            <p class="subtitle">Join Ledger Bank Digital Platform</p>
+
+            <div class="input-group">
+              <label for="regName"><i class="fa-solid fa-user"></i> Full Name</label>
+              <input type="text" id="regName" placeholder="e.g. Alice Johnson" required>
+            </div>
+
+            <div class="input-group">
+              <label for="regEmail"><i class="fa-solid fa-envelope"></i> Email Address</label>
+              <input type="email" id="regEmail" placeholder="e.g. alice@example.com" required>
+            </div>
+
+            <div class="input-group">
+              <label for="regPassword"><i class="fa-solid fa-key"></i> Create Password</label>
+              <input type="password" id="regPassword" placeholder="Minimum 6 characters" required minlength="6">
+            </div>
+
+            <button type="submit" class="btn btn-success full-width"><i class="fa-solid fa-user-plus"></i> Register & Open Digital Wallet</button>
+          </form>
+        </div>
+      </section>
+
+      <!-- Dashboard Screen (If Logged In) -->
+      <section id="userDashboardContainer" class="dashboard-wrapper hidden">
+        <div class="dashboard-grid">
+          
+          <!-- Balance Card & Quick Actions -->
+          <div class="glass-card balance-card">
+            <div class="card-chip"><i class="fa-solid fa-sim-card"></i> LEDGER DIGITAL</div>
+            
+            <div class="account-details">
+              <span class="account-label">Bank Account Number</span>
+              <div class="account-number-row">
+                <span class="account-number" id="lblAccountNumber">ACC------------</span>
+                <button class="btn-icon" id="btnCopyAccount" title="Copy Account Number"><i class="fa-regular fa-copy"></i></button>
+              </div>
+              <span class="holder-name" id="lblHolderName">User Name</span>
+            </div>
+
+            <div class="balance-display">
+              <span class="balance-label">Total Real-Time Balance</span>
+              <h1 class="balance-amount" id="lblAccountBalance">₹0.00</h1>
+            </div>
+
+            <div class="action-buttons">
+              <button id="btnOpenSendMoneyModal" class="btn btn-primary"><i class="fa-solid fa-paper-plane"></i> Send Money</button>
+              <button id="btnOpenDepositModal" class="btn btn-secondary"><i class="fa-solid fa-wallet"></i> Self Deposit</button>
+              <button id="btnOpenPinModal" class="btn btn-outline"><i class="fa-solid fa-shield-halved"></i> Set/Change PIN</button>
+            </div>
+          </div>
+
+          <!-- Account Summary & Security Card -->
+          <div class="glass-card security-summary-card">
+            <h3><i class="fa-solid fa-shield-check"></i> Account Status & Security</h3>
+            
+            <div class="info-list">
+              <div class="info-item">
+                <span class="info-label">Account Status</span>
+                <span class="badge badge-success" id="lblAccountStatus">ACTIVE</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Transaction PIN Status</span>
+                <span class="badge badge-warning" id="lblPinStatus">PIN Not Set</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Currency</span>
+                <span class="info-value">INR (₹)</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Member Since</span>
+                <span class="info-value" id="lblMemberSince">---</span>
+              </div>
+            </div>
+
+            <div class="notice-box">
+              <i class="fa-solid fa-lock"></i>
+              <p>All online transactions require a 4-digit Transaction PIN for maximum security.</p>
+            </div>
+          </div>
+
+          <!-- Recent Transactions Ledger List -->
+          <div class="glass-card ledger-history-card full-width">
+            <div class="card-header-row">
+              <h3><i class="fa-solid fa-receipt"></i> Transaction Ledger History</h3>
+              <button id="btnRefreshLedger" class="btn-sm"><i class="fa-solid fa-arrows-rotate"></i> Refresh</button>
+            </div>
+
+            <div class="table-responsive">
+              <table class="ledger-table">
+                <thead>
+                  <tr>
+                    <th>Date & Time</th>
+                    <th>Type</th>
+                    <th>From Account</th>
+                    <th>To Account</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="tblUserTransactions">
+                  <tr><td colspan="6" class="text-center text-muted">No transactions found.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+
+    <!-- ==================== 2. ADMIN PHYSICAL CASHIER PORTAL ==================== -->
+    <main id="adminPortalSection" class="portal-section">
+      <div class="admin-wrapper">
+        
+        <!-- Admin Header Banner -->
+        <div class="glass-card admin-header-card">
+          <div class="admin-title-row">
+            <div>
+              <h2><i class="fa-solid fa-building-columns"></i> Physical Bank Cashier Counter</h2>
+              <p class="subtitle">Offline Account Onboarding & Physical Cash Desk</p>
+            </div>
+            <span class="admin-badge"><i class="fa-solid fa-user-shield"></i> Cashier Terminal</span>
+          </div>
+
+          <!-- Admin Stats Cards -->
+          <div class="admin-stats-grid">
+            <div class="stat-card">
+              <i class="fa-solid fa-vault stat-icon"></i>
+              <div class="stat-info">
+                <span class="stat-label">Total Bank Reserve</span>
+                <h3 id="statTotalReserve">₹0.00</h3>
+              </div>
+            </div>
+            <div class="stat-card">
+              <i class="fa-solid fa-users stat-icon"></i>
+              <div class="stat-info">
+                <span class="stat-label">Total Customers</span>
+                <h3 id="statCustomerCount">0</h3>
+              </div>
+            </div>
+            <div class="stat-card">
+              <i class="fa-solid fa-file-invoice-dollar stat-icon"></i>
+              <div class="stat-info">
+                <span class="stat-label">Total Transactions</span>
+                <h3 id="statTxCount">0</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="admin-operations-grid">
+          <!-- Form 1: Offline Customer Account Onboarding -->
+          <div class="glass-card admin-op-card">
+            <h3><i class="fa-solid fa-user-plus"></i> Offline Customer Onboarding</h3>
+            <p class="subtitle">Register customer at physical bank counter & issue Account Number</p>
+
+            <form id="formAdminOnboard">
+              <div class="input-group">
+                <label for="adminCustName">Customer Full Name</label>
+                <input type="text" id="adminCustName" placeholder="e.g. Rahul Sharma" required>
+              </div>
+
+              <div class="input-group">
+                <label for="adminCustEmail">Customer Email Address</label>
+                <input type="email" id="adminCustEmail" placeholder="e.g. rahul@example.com" required>
+              </div>
+
+              <div class="input-group">
+                <label for="adminCustPassword">Temp Password</label>
+                <input type="password" id="adminCustPassword" placeholder="Minimum 6 chars" required minlength="6">
+              </div>
+
+              <div class="input-group">
+                <label for="adminInitialDeposit">Initial Cash Deposit (₹)</label>
+                <input type="number" id="adminInitialDeposit" placeholder="e.g. 5000" min="0" value="1000" required>
+              </div>
+
+              <button type="submit" class="btn btn-primary full-width"><i class="fa-solid fa-id-card"></i> Create Account & Deposit Cash</button>
+            </form>
+          </div>
+
+          <!-- Form 2: Physical Cash Deposit & Withdrawal Counter -->
+          <div class="glass-card admin-op-card">
+            <h3><i class="fa-solid fa-money-bill-transfer"></i> Cashier Cash Counter</h3>
+            <p class="subtitle">Deposit or Withdraw physical cash for existing accounts</p>
+
+            <form id="formAdminCashOp">
+              <div class="input-group">
+                <label for="adminTargetAcc">Target Account Number</label>
+                <input type="text" id="adminTargetAcc" placeholder="e.g. ACC1029384756" required>
+              </div>
+
+              <div class="input-group">
+                <label for="adminCashAmount">Cash Amount (₹)</label>
+                <input type="number" id="adminCashAmount" placeholder="e.g. 2000" min="1" required>
+              </div>
+
+              <div class="btn-group-2">
+                <button type="button" id="btnCashierDeposit" class="btn btn-success"><i class="fa-solid fa-down-to-bracket"></i> Physical Cash Deposit</button>
+                <button type="button" id="btnCashierWithdraw" class="btn btn-danger"><i class="fa-solid fa-up-from-bracket"></i> Physical Cash Withdraw</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Global Accounts Audit List -->
+        <div class="glass-card admin-accounts-card full-width">
+          <div class="card-header-row">
+            <h3><i class="fa-solid fa-list-check"></i> Master Bank Accounts Registry</h3>
+            <button id="btnRefreshAdminAccounts" class="btn-sm"><i class="fa-solid fa-arrows-rotate"></i> Refresh List</button>
+          </div>
+
+          <div class="table-responsive">
+            <table class="ledger-table">
+              <thead>
+                <tr>
+                  <th>Account Number</th>
+                  <th>Customer Name</th>
+                  <th>Email</th>
+                  <th>Status</th>
+                  <th>Current Balance</th>
+                  <th>Created Date</th>
+                </tr>
+              </thead>
+              <tbody id="tblAdminAccounts">
+                <tr><td colspan="6" class="text-center text-muted">No accounts loaded. Log in as Admin to view master registry.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+  <!-- MODALS -->
+
+  <!-- Modal 1: Send Money Online -->
+  <div id="modalSendMoney" class="modal-overlay hidden">
+    <div class="glass-card modal-card">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-paper-plane"></i> Online Money Transfer</h3>
+        <button class="modal-close" id="btnCloseSendMoney"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <form id="formSendMoney">
+        <div class="input-group">
+          <label for="transferToAcc">Recipient Account Number (ACC...)</label>
+          <input type="text" id="transferToAcc" placeholder="e.g. ACC849201948" required>
+        </div>
+
+        <div class="input-group">
+          <label for="transferAmount">Amount (₹)</label>
+          <input type="number" id="transferAmount" placeholder="e.g. 500" min="1" required>
+        </div>
+
+        <div class="input-group">
+          <label for="transferPin"><i class="fa-solid fa-lock"></i> 4-Digit Transaction PIN</label>
+          <input type="password" id="transferPin" placeholder="••••" maxlength="6" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary full-width"><i class="fa-solid fa-bolt"></i> Authorize & Send Transfer</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 2: Self Cash Deposit -->
+  <div id="modalDeposit" class="modal-overlay hidden">
+    <div class="glass-card modal-card">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-wallet"></i> Instant Account Deposit</h3>
+        <button class="modal-close" id="btnCloseDeposit"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <form id="formDeposit">
+        <div class="input-group">
+          <label for="depositAmount">Deposit Amount (₹)</label>
+          <input type="number" id="depositAmount" placeholder="e.g. 1000" min="1" required>
+        </div>
+
+        <button type="submit" class="btn btn-success full-width"><i class="fa-solid fa-plus-circle"></i> Deposit Funds</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 3: Set / Change Transaction PIN -->
+  <div id="modalSetPin" class="modal-overlay hidden">
+    <div class="glass-card modal-card">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-shield-halved"></i> Set Transaction PIN</h3>
+        <button class="modal-close" id="btnCloseSetPin"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <form id="formSetPin">
+        <p class="subtitle">Set a 4-digit PIN required for all online transactions</p>
+
+        <div class="input-group">
+          <label for="newPin">Enter 4-Digit PIN</label>
+          <input type="password" id="newPin" placeholder="e.g. 1234" maxlength="6" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary full-width"><i class="fa-solid fa-key"></i> Save Transaction PIN</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
