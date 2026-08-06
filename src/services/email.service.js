@@ -345,4 +345,109 @@ Get started by logging into your dashboard.
   return sendEmail({ to: email, subject, text, html });
 }
 
-module.exports = { sendAccountCreatedEmail, sendTransferEmail, sendRegistrationEmail };
+// ─── Cash Deposit / Withdrawal Alert Email ────────────────────────────────────
+async function sendCashTransactionEmail({ email, name, accountNumber, amount, type, newBalance, channel }) {
+  const isDeposit  = type === "CREDIT";
+  const isOnline   = channel === "ONLINE";
+  const label      = isDeposit ? "Cash Deposit" : "Cash Withdrawal";
+  const icon       = isDeposit ? "🟢" : "🔴";
+  const accentColor  = isDeposit ? "#16a34a" : "#dc2626";
+  const accentBg     = isDeposit ? "#f0fdf4" : "#fef2f2";
+  const accentBorder = isDeposit ? "#bbf7d0" : "#fecaca";
+  const channelLabel = isOnline ? "ATM / Online Self-Deposit" : "Cashier (Branch Office)";
+
+  const formattedAmount  = `₹${Number(amount).toLocaleString("en-IN", { minimumFractionDigits: 2 })}`;
+  const formattedBalance = `₹${Number(newBalance).toLocaleString("en-IN", { minimumFractionDigits: 2 })}`;
+  const now = new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata", dateStyle: "medium", timeStyle: "short" });
+
+  const subject = `${icon} ${label} Alert — ${formattedAmount} ${isDeposit ? "Credited" : "Debited"}`;
+
+  const text = `${label} Alert — FlowLedger\n\nHello ${name},\n\nA ${label.toLowerCase()} of ${formattedAmount} has been ${isDeposit ? "credited to" : "debited from"} your account.\n\nTransaction Details:\n  Account Number  : ${accountNumber}\n  Amount          : ${formattedAmount}\n  Channel         : ${channelLabel}\n  New Balance     : ${formattedBalance}\n  Date & Time     : ${now} IST\n\n⚠️ DEMO NOTICE: This is a simulated transaction in the FlowLedger demo system. No real money is involved.\n\n— FlowLedger Team`;
+
+  const html = wrapHtml(`${label} Alert — FlowLedger`, `
+    <!-- Amount Hero -->
+    <div style="text-align:center;margin-bottom:28px;">
+      <div style="font-size:40px;margin-bottom:4px;">${icon}</div>
+      <div style="font-size:13px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">
+        ${label}
+      </div>
+      <div style="font-size:38px;font-weight:800;color:${accentColor};">
+        ${formattedAmount}
+      </div>
+    </div>
+
+    <p style="margin:0 0 20px;font-size:15px;color:#475569;line-height:1.6;">
+      Hello <strong>${name}</strong>,<br/>
+      A ${label.toLowerCase()} of <strong>${formattedAmount}</strong> has been
+      <strong>${isDeposit ? "credited to" : "debited from"}</strong> your FlowLedger account via ${channelLabel}.
+    </p>
+
+    <!-- Transaction Details Card -->
+    <table width="100%" cellpadding="0" cellspacing="0"
+      style="background:${accentBg};border:1px solid ${accentBorder};border-radius:10px;margin-bottom:24px;overflow:hidden;">
+      <tr>
+        <td style="padding:14px 20px;border-bottom:1px solid ${accentBorder};">
+          <span style="font-size:13px;font-weight:700;color:${accentColor};text-transform:uppercase;letter-spacing:0.8px;">
+            Transaction Details
+          </span>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:16px 20px;">
+          <table width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+              <td style="padding:8px 0;border-bottom:1px solid ${accentBorder};">
+                <span style="font-size:12px;color:#94a3b8;font-weight:500;display:block;">Account Number</span>
+                <span style="font-size:15px;font-weight:700;color:#1a1f36;letter-spacing:1px;">${accountNumber}</span>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:8px 0;border-bottom:1px solid ${accentBorder};">
+                <span style="font-size:12px;color:#94a3b8;font-weight:500;display:block;">Amount ${isDeposit ? "Credited" : "Debited"}</span>
+                <span style="font-size:16px;font-weight:800;color:${accentColor};">${formattedAmount}</span>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:8px 0;border-bottom:1px solid ${accentBorder};">
+                <span style="font-size:12px;color:#94a3b8;font-weight:500;display:block;">Updated Account Balance</span>
+                <span style="font-size:18px;font-weight:800;color:#1a1f36;">${formattedBalance}</span>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:8px 0;border-bottom:1px solid ${accentBorder};">
+                <span style="font-size:12px;color:#94a3b8;font-weight:500;display:block;">Channel</span>
+                <span style="font-size:14px;font-weight:600;color:#1a1f36;">${channelLabel}</span>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:8px 0;">
+                <span style="font-size:12px;color:#94a3b8;font-weight:500;display:block;">Date & Time (IST)</span>
+                <span style="font-size:14px;font-weight:600;color:#1a1f36;">${now}</span>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+
+    ${!isDeposit ? `
+    <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:14px 18px;margin-bottom:24px;">
+      <p style="margin:0;font-size:13px;color:#92400e;line-height:1.6;">
+        <strong>🔒 Security Notice:</strong> If you did not authorize this withdrawal,
+        please contact support immediately.
+      </p>
+    </div>` : ""}
+
+    <!-- Demo Notice -->
+    <div style="background:#fef9c3;border:1px solid #fde047;border-radius:8px;padding:14px 18px;">
+      <p style="margin:0;font-size:13px;color:#713f12;line-height:1.6;">
+        <strong>⚠️ Demo Notice:</strong> This is a <strong>simulated transaction</strong> in the FlowLedger
+        demo banking system. No real money or financial services are involved.
+      </p>
+    </div>
+  `);
+
+  return sendEmail({ to: email, subject, text, html });
+}
+
+module.exports = { sendAccountCreatedEmail, sendTransferEmail, sendRegistrationEmail, sendCashTransactionEmail };

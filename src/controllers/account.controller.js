@@ -1,6 +1,7 @@
 const accountModel = require("../models/account.model");
 const ledgerModel = require("../models/ledger.model");
 const transactionModel = require("../models/transaction.model");
+const { sendCashTransactionEmail } = require("../services/email.service");
 
 async function createAccountController(req, res) {
   try {
@@ -97,6 +98,17 @@ async function depositFundsController(req, res) {
     });
 
     const newBalance = await account.getBalance();
+
+    // Notify user — fire-and-forget
+    sendCashTransactionEmail({
+      email: req.user.email,
+      name: req.user.name,
+      accountNumber: account.accountNumber,
+      amount,
+      type: "CREDIT",
+      newBalance,
+      channel: "ONLINE"
+    }).catch(error => console.error("Self-deposit email failed:", error.message));
 
     return res.status(200).json({
       message: `Successfully deposited ₹${amount} into account`,

@@ -2,7 +2,7 @@ const userModel = require("../models/user.model");
 const accountModel = require("../models/account.model");
 const ledgerModel = require("../models/ledger.model");
 const transactionModel = require("../models/transaction.model");
-const emailService = require("../services/email.service");
+const { sendAccountCreatedEmail, sendCashTransactionEmail } = require("../services/email.service");
 
 /**
  * - Admin Cashier: Onboard new customer offline & create account with initial physical cash deposit
@@ -69,7 +69,7 @@ async function onboardCustomerController(req, res) {
     }
 
     // Account creation is already persisted; email delivery happens asynchronously.
-    emailService.sendAccountCreatedEmail({
+    sendAccountCreatedEmail({
       email: user.email,
       name: user.name,
       accountNumber: account.accountNumber,
@@ -137,6 +137,20 @@ async function cashDepositController(req, res) {
 
     const newBalance = await account.getBalance();
 
+    // Notify account holder — fire-and-forget
+    const accountOwner = await userModel.findById(account.user).select("name email");
+    if (accountOwner) {
+      sendCashTransactionEmail({
+        email: accountOwner.email,
+        name: accountOwner.name,
+        accountNumber: account.accountNumber,
+        amount: depositAmount,
+        type: "CREDIT",
+        newBalance,
+        channel: "OFFLINE"
+      }).catch(error => console.error("Cash deposit email failed:", error.message));
+    }
+
     return res.status(200).json({
       message: `Physical cash deposit of ₹${depositAmount} successful`,
       accountNumber: account.accountNumber,
@@ -197,6 +211,20 @@ async function cashWithdrawController(req, res) {
     });
 
     const newBalance = await account.getBalance();
+
+    // Notify account holder — fire-and-forget
+    const accountOwner = await userModel.findById(account.user).select("name email");
+    if (accountOwner) {
+      sendCashTransactionEmail({
+        email: accountOwner.email,
+        name: accountOwner.name,
+        accountNumber: account.accountNumber,
+        amount: withdrawAmount,
+        type: "DEBIT",
+        newBalance,
+        channel: "OFFLINE"
+      }).catch(error => console.error("Cash withdrawal email failed:", error.message));
+    }
 
     return res.status(200).json({
       message: `Physical cash withdrawal of ₹${withdrawAmount} successful`,
